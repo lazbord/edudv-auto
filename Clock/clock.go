@@ -1,18 +1,22 @@
-package clock
+package Clock
 
 import (
+	discord "edudv-auto/Discord"
 	model "edudv-auto/Model"
+	"fmt"
 	"strings"
 	"time"
 )
 
-func getHours(courses []model.Course) bool {
+func GetHours(courses []model.Course) {
 	currentTime := time.Now()
-	currentHour := currentTime.Format("15:04") // Current time in "HH:MM"
 
 	for _, course := range courses {
-		for _, rangeStr := range course.Hours {
-			// Split the range string
+		// Split the hours string into individual time ranges
+		timeRanges := strings.Split(course.Hours, ",")
+
+		for _, rangeStr := range timeRanges {
+			// Split the range string into start and end times
 			times := strings.Split(strings.TrimSpace(rangeStr), " - ")
 			if len(times) != 2 {
 				continue // Skip malformed entries
@@ -27,9 +31,9 @@ func getHours(courses []model.Course) bool {
 
 			// Check if the current time is within the range
 			if currentTime.After(startTime) && currentTime.Before(endTime) {
-				return true // Current hour is within the specified ranges
+				fmt.Printf(course.Name)
 			}
 		}
 	}
-	return false
+	discord.SendDiscordMessage("Pas de cours prévu à " + currentTime.Format("15:04"))
 }

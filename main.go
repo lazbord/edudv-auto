@@ -2,6 +2,7 @@ package main
 
 import (
 	"edudv-auto/Alert"
+	"edudv-auto/Clock"
 	"edudv-auto/Scrape"
 	"fmt"
 )
@@ -17,4 +18,5 @@ func main() {
 	}
 
 	Alert.GetAttendance(courses)
+	Clock.GetHours(courses)
 }
