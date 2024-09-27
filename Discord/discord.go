@@ -45,7 +45,16 @@ func SendDiscordMessage(message string) {
 	err := PostReqToDiscord(webhookURL, message)
 	if err != nil {
 		fmt.Printf("Error sending message: %v\n", err)
-	} else {
-		fmt.Println("Message sent successfully!")
+	}
+}
+
+func SendLoggerMessage(message string) {
+	godotenv.Load()
+
+	webhookURL := os.Getenv("loggerwebhookURL")
+
+	err := PostReqToDiscord(webhookURL, message)
+	if err != nil {
+		fmt.Printf("Error sending message: %v\n", err)
 	}
 }

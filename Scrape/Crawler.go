@@ -125,3 +125,7 @@ func getHref(n *html.Node) string {
 	}
 	return ""
 }
+
+func GetCoursesOfTheDay() []model.Course {
+	return ParseHTML(GetSourceCode())
+}
