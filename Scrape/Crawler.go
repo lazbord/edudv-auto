@@ -68,7 +68,8 @@ func ParseHTML(SourceCode string) []model.Course {
 					// Assign fields based on the order of <td> elements
 					switch tdIndex {
 					case 0:
-						course.Hours = text
+						cleanTimeRange := strings.ReplaceAll(text, " ", "")
+						course.Hours = cleanTimeRange
 					case 1:
 						course.Name = text
 					case 2:
