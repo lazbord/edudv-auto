@@ -4,6 +4,7 @@ import (
 	alert "edudv-auto/Alert"
 	discord "edudv-auto/Discord"
 	model "edudv-auto/Model"
+	"math/rand"
 	"strings"
 	"time"
 )
@@ -28,7 +29,7 @@ func MainClock(courses []model.Course) {
 
 			// Check if the current time is before the start time
 			if currentTime.Before(startTimeToday) {
-				discord.SendLoggerMessage("Waiting for course " + course.Name + " to start at " + startTimeToday.Format("15:04"))
+				discord.SendLoggerMessage(" :zzz: Waiting for course " + course.Name + " to start at " + startTimeToday.Format("15:04"))
 				time.Sleep(time.Until(startTimeToday)) // Sleep until the course start time
 				currentTime = time.Now()               // Update current time after sleeping
 			}
@@ -41,29 +42,31 @@ func MainClock(courses []model.Course) {
 
 // CheckPresence checks the presence status every 30 seconds until it's available or time runs out.
 func CheckPresence(course model.Course, endTime time.Time) {
+	discord.SendLoggerMessage(" :mag: Started checking presence for **" + course.Name + "**")
 	for {
 		// Call alert.CheckPresence to see if presence is available
 		isPresenceUp := alert.CheckPresence(course)
 
 		if isPresenceUp {
 			// Send a message to Discord if presence is up
-			discord.SendDiscordMessage("Appel !")
+			discord.SendDiscordMessage(":warning: **Appel** @everyone :warning:")
 			discord.SendDiscordMessage("- " + course.Name)
 			discord.SendDiscordMessage("- " + course.Teacher)
 			discord.SendDiscordMessage("- " + course.Hours)
 			discord.SendDiscordMessage("- " + course.ZoomLink)
 			discord.SendDiscordMessage("- " + course.DVLLink)
-			discord.SendLoggerMessage("Presence is up for  " + course.Name + ". Stopping presence check ")
+			discord.SendLoggerMessage(" :white_check_mark: Presence is up for  **" + course.Name + "**. Stopping presence check ")
 			break // Exit the loop once presence is up
 		}
 
 		// Check if current time has passed the course end time
 		if time.Now().After(endTime) {
-			discord.SendLoggerMessage("Course " + course.Name + " has ended. Stopping presence check ")
+			discord.SendLoggerMessage(" :no_entry: Course **" + course.Name + "** has ended. Stopping presence check ")
 			break
 		}
 
-		// Wait for 30 seconds before checking again
-		time.Sleep(30 * time.Second)
+		randomSleep := time.Duration(20+rand.Intn(40)) * time.Second
+
+		time.Sleep(randomSleep)
 	}
 }
