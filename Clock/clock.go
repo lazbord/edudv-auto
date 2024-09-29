@@ -4,13 +4,15 @@ import (
 	alert "edudv-auto/Alert"
 	discord "edudv-auto/Discord"
 	model "edudv-auto/Model"
+	"edudv-auto/Scrape"
+	"fmt"
 	"math/rand"
 	"strings"
 	"time"
 )
 
 // MainClock checks the schedule of courses and waits for the start time to check presence.
-func MainClock(courses []model.Course) {
+func ClockForTHeDay(courses []model.Course) {
 	currentTime := time.Now()
 
 	for _, course := range courses {
@@ -37,6 +39,8 @@ func MainClock(courses []model.Course) {
 			// Start checking for presence every 30 seconds until the end time
 			CheckPresence(course, endTimeToday)
 		}
+
+		discord.SendLoggerMessage(":white_check_mark: No more course for the end of the day.")
 	}
 }
 
@@ -68,5 +72,28 @@ func CheckPresence(course model.Course, endTime time.Time) {
 		randomSleep := time.Duration(20+rand.Intn(40)) * time.Second
 
 		time.Sleep(randomSleep)
+	}
+}
+
+func MainClock() {
+	for {
+		now := time.Now()
+
+		next := time.Date(now.Year(), now.Month(), now.Day(), 7, 0, 0, 0, now.Location())
+
+		if now.After(next) {
+			next = next.Add(24 * time.Hour)
+		}
+
+		durationUntilNext := time.Until(next)
+
+		waitingTimeMessage := fmt.Sprintf(":alarm_clock: Waiting until next morning, waiting time: %dh%dm", int(durationUntilNext.Hours()), int(durationUntilNext.Minutes())%60)
+
+		discord.SendLoggerMessage(waitingTimeMessage)
+
+		time.Sleep(durationUntilNext)
+
+		courses := Scrape.GetCoursesOfTheDay()
+		ClockForTHeDay(courses)
 	}
 }
